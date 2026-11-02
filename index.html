@@ -1,0 +1,226 @@
+<!doctype html>
+<html lang="ru">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <title>Проект Яндекс Склад · Площадки</title>
+  <meta name="description" content="Проект Яндекс Склад: обучение, выходы и оборот по площадкам — по дням.">
+  <meta name="theme-color" content="#0d1214">
+  <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' rx='14' fill='%230d1214'/%3E%3Cpath d='M22 50V16h14a10 10 0 0 1 0 20H22' fill='none' stroke='%23ece6dc' stroke-width='5' stroke-linecap='round' stroke-linejoin='round'/%3E%3Ccircle cx='47' cy='48' r='4' fill='%23d79a68'/%3E%3C/svg%3E">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Unbounded:wght@300;400;500;600&family=Manrope:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap">
+  <link rel="stylesheet" href="assets/css/styles.css">
+  <script>
+    try { const t = localStorage.getItem('br-theme'); if (t) document.documentElement.dataset.theme = t; } catch (e) {}
+  </script>
+</head>
+<body>
+  <div class="grain" aria-hidden="true"></div>
+
+  <header class="topbar">
+    <div class="topbar__inner">
+      <a class="brand" href="#top" aria-label="Проект Яндекс Склад — в начало">
+        <span class="brand__mark" aria-hidden="true">
+          <svg viewBox="0 0 32 32"><path d="M11 25V8h7a5 5 0 0 1 0 10h-7"/><circle cx="23.5" cy="24" r="1.9" class="brand__dot"/></svg>
+        </span>
+        <span class="brand__text">Проект Яндекс Склад<small>площадки</small></span>
+      </a>
+      <nav class="nav" aria-label="Разделы">
+        <a href="#training"><span>01</span>Обучение</a>
+        <a href="#shifts"><span>02</span>Выходы</a>
+        <a href="#money"><span>03</span>Оборот</a>
+      </nav>
+      <div class="topbar__tools">
+        <span class="status" id="status" data-state="loading"><i></i><span id="status-text">Загрузка…</span></span>
+        <button class="icon-btn" id="refresh" type="button" aria-label="Обновить данные" title="Обновить данные">
+          <svg viewBox="0 0 24 24"><path d="M20 12a8 8 0 1 1-2.34-5.66M20 4v5h-5"/></svg>
+        </button>
+        <button class="icon-btn" id="theme" type="button" aria-label="Сменить тему" title="Сменить тему">
+          <svg viewBox="0 0 24 24"><path d="M12 3a9 9 0 1 0 9 9 7 7 0 0 1-9-9Z"/></svg>
+        </button>
+      </div>
+    </div>
+  </header>
+
+  <main id="top">
+    <div class="notice" id="notice" hidden></div>
+
+    <section class="hero" aria-labelledby="hero-title">
+      <div class="hero__copy">
+        <p class="eyebrow">Сводка по площадкам · <span id="hero-range">—</span></p>
+        <h1 class="hero__title" id="hero-title">Люди, смены<br>и <em>оборот</em></h1>
+        <p class="hero__lead">Лиды на стажировку, выходы исполнителей и оборот по каждой площадке — день за днём, напрямую из рабочих таблиц.</p>
+
+        <div class="period" role="group" aria-label="Период">
+          <div class="period__dates">
+            <label class="field"><span>с</span><input type="date" id="from"></label>
+            <span class="period__dash" aria-hidden="true"></span>
+            <label class="field"><span>по</span><input type="date" id="to"></label>
+          </div>
+          <div class="chips" id="presets">
+            <button type="button" class="chip" data-days="7">7 дней</button>
+            <button type="button" class="chip" data-days="14">14 дней</button>
+            <button type="button" class="chip" data-days="30">30 дней</button>
+            <button type="button" class="chip" data-days="all">Всё время</button>
+          </div>
+        </div>
+      </div>
+
+      <figure class="hero__map card card--glass">
+        <figcaption class="card__head">
+          <span class="eyebrow">Схема площадок · выходы за период</span>
+        </figcaption>
+        <div class="map-host" id="map"></div>
+      </figure>
+    </section>
+
+    <section class="kpis" aria-label="Итоги за период">
+      <article class="kpi">
+        <p class="kpi__label">Входящие лиды</p>
+        <p class="kpi__value"><span data-kpi="leads">—</span></p>
+        <p class="kpi__sub"><span data-kpi="came">—</span> пришли на стаж · <b data-kpi="rate">—</b></p>
+        <p class="kpi__delta" data-delta="leads"></p>
+      </article>
+      <article class="kpi">
+        <p class="kpi__label">Выходы исполнителей</p>
+        <p class="kpi__value"><span data-kpi="shifts">—</span></p>
+        <p class="kpi__sub">в среднем <span data-kpi="shiftsAvg">—</span> в день</p>
+        <p class="kpi__delta" data-delta="shifts"></p>
+      </article>
+      <article class="kpi kpi--accent">
+        <p class="kpi__label">Оборот</p>
+        <p class="kpi__value"><span data-kpi="turnover">—</span><small>₽</small></p>
+        <p class="kpi__sub">в среднем <span data-kpi="turnoverAvg">—</span> в день</p>
+        <p class="kpi__delta" data-delta="turnover"></p>
+      </article>
+      <article class="kpi">
+        <p class="kpi__label">Заработок исполнителей</p>
+        <p class="kpi__value"><span data-kpi="earnings">—</span><small>₽</small></p>
+        <p class="kpi__sub">оборот ÷ <span id="rate">1,82</span></p>
+        <p class="kpi__delta" data-delta="earnings"></p>
+      </article>
+    </section>
+
+    <!-- 01 -->
+    <section class="chapter" id="training" aria-labelledby="training-title">
+      <header class="chapter__head">
+        <span class="chapter__num" aria-hidden="true">01</span>
+        <div>
+          <h2 class="chapter__title" id="training-title">Обучение</h2>
+          <p class="chapter__lead">Лид — строка с «датой стажа». Пришёл — в комментарии стоит «прошел». Отметку ставят после стажа, поэтому последние дни ниже.</p>
+        </div>
+        <p class="chapter__range" data-range></p>
+      </header>
+      <div class="grid">
+        <article class="card card--wide">
+          <div class="card__head">
+            <h3 class="card__title">Итого всего по дням</h3>
+            <div class="legend"><span><i class="swatch swatch--main"></i>Лиды</span><span><i class="swatch swatch--inner"></i>Пришли</span></div>
+          </div>
+          <div class="chart" id="training-chart"></div>
+        </article>
+        <article class="card">
+          <div class="card__head"><h3 class="card__title">Площадки за период</h3></div>
+          <ol class="rank" id="training-rank"></ol>
+        </article>
+      </div>
+      <article class="card">
+        <div class="card__head">
+          <div>
+            <h3 class="card__title">По площадкам в день</h3>
+            <p class="card__note">Справа — итого всего в день, внизу — итого по площадке за период.</p>
+          </div>
+          <div class="segmented" role="group" aria-label="Показатель" data-segment="training">
+            <button type="button" data-value="leads" aria-pressed="true">Лиды</button>
+            <button type="button" data-value="came" aria-pressed="false">Пришли</button>
+          </div>
+        </div>
+        <div class="table-scroll" id="training-table"></div>
+      </article>
+    </section>
+
+    <!-- 02 -->
+    <section class="chapter" id="shifts" aria-labelledby="shifts-title">
+      <header class="chapter__head">
+        <span class="chapter__num" aria-hidden="true">02</span>
+        <div>
+          <h2 class="chapter__title" id="shifts-title">Выходы</h2>
+          <p class="chapter__lead">Каждая строка сверки с операционным днём — один выход исполнителя на площадку.</p>
+        </div>
+        <p class="chapter__range" data-range></p>
+      </header>
+      <div class="grid">
+        <article class="card card--wide">
+          <div class="card__head">
+            <h3 class="card__title">Итого всего по дням</h3>
+            <div class="legend"><span><i class="swatch swatch--main"></i>Выходы</span></div>
+          </div>
+          <div class="chart" id="shifts-chart"></div>
+        </article>
+        <article class="card">
+          <div class="card__head"><h3 class="card__title">Площадки за период</h3></div>
+          <ol class="rank" id="shifts-rank"></ol>
+        </article>
+      </div>
+      <article class="card">
+        <div class="card__head">
+          <div>
+            <h3 class="card__title">Выходы по площадкам в день</h3>
+            <p class="card__note">Справа — итого всего в день, внизу — итого по площадке за период.</p>
+          </div>
+        </div>
+        <div class="table-scroll" id="shifts-table"></div>
+      </article>
+    </section>
+
+    <!-- 03 -->
+    <section class="chapter" id="money" aria-labelledby="money-title">
+      <header class="chapter__head">
+        <span class="chapter__num" aria-hidden="true">03</span>
+        <div>
+          <h2 class="chapter__title" id="money-title">Оборот и заработок</h2>
+          <p class="chapter__lead">Оборот — сумма колонки «Сумма» за операционный день. Заработок исполнителя — та же сумма, делённая на <span data-rate>1,82</span>.</p>
+        </div>
+        <p class="chapter__range" data-range></p>
+      </header>
+      <div class="grid">
+        <article class="card card--wide">
+          <div class="card__head">
+            <h3 class="card__title">Итого всего по дням, ₽</h3>
+            <div class="legend"><span><i class="swatch swatch--main"></i>Оборот</span><span><i class="swatch swatch--inner"></i>Заработок исполнителя</span></div>
+          </div>
+          <div class="chart" id="money-chart"></div>
+        </article>
+        <article class="card">
+          <div class="card__head"><h3 class="card__title">Площадки за период</h3></div>
+          <ol class="rank" id="money-rank"></ol>
+        </article>
+      </div>
+      <article class="card">
+        <div class="card__head">
+          <div>
+            <h3 class="card__title">По площадкам в день, ₽</h3>
+            <p class="card__note">Округлено до рубля. Справа — итого всего в день, внизу — итого по площадке за период.</p>
+          </div>
+          <div class="segmented" role="group" aria-label="Показатель" data-segment="money">
+            <button type="button" data-value="turnover" aria-pressed="true">Оборот</button>
+            <button type="button" data-value="earnings" aria-pressed="false">Заработок</button>
+          </div>
+        </div>
+        <div class="table-scroll" id="money-table"></div>
+      </article>
+    </section>
+  </main>
+
+  <footer class="footer">
+    <div class="footer__inner">
+      <p class="footer__brand">Проект Яндекс Склад</p>
+      <p class="footer__meta">Источники: <span id="sources"></span></p>
+      <p class="footer__meta" id="generated">—</p>
+    </div>
+  </footer>
+
+  <script type="module" src="assets/js/app.js"></script>
+</body>
+</html>
